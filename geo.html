@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+	html, body, #map{width:100%;height:100%;padding:0;margin:0;}
+</style>
+<title>Geoportal Izabela Bałakier</title>
+<link rel = "icon" type ="image/ico" href="pobrane.ico"/>
+<meta charset="UTF-8">
+
+</head>
+<body>
+
+<div id="map">
+<link rel = "stylesheet" href = "leaflet/leaflet.css">
+
+<script src="leaflet/leaflet.js"></script>
+<script src="metrolayer.js"></script>
+<script src="metroprzystanki.js"></script>
+<script src="tramwajlayer.js"></script>
+<script src="tram_stop.js"></script>
+<script src="Leaflet.Control.Opacity-master/src/L.Control.Opacity.js"></script>
+<link rel = "stylesheet" href = "Leaflet.Control.Opacity-master/src/L.Control.Opacity.css">
+<link rel="stylesheet" href="Leaflet.PolylineMeasure-master/Leaflet.PolylineMeasure.css">
+<script src="Leaflet.PolylineMeasure-master/Leaflet.PolylineMeasure.js"></script>
+<script>
+var mymap=L.map('map', {maxZoom:20, editable: true}).setView([52.24236535343873, 21.019116123405148], 11);
+var osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'})
+var mapa2=L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw');
+var mapa3=L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw');
+osm.addTo(mymap);
+mapa2.addTo(mymap);
+mapa3.addTo(mymap);
+
+L.control.polylineMeasure().addTo(mymap);
+
+
+function PToL(feature,latlng){
+	style={radius:4,opacity:1,color:'rgba(0,0,0,1)',weight:2,fill:true,fillOpacity:1,fillColor:'red'}
+	return L.circleMarker(latlng,style);
+}
+
+function PTOL(feature,latlng){
+	style={radius:4,opacity:1,color:'rgba(0,0,0,1)',weight:2,fill:true,fillOpacity:1,fillColor:'blue'}
+	return L.circleMarker(latlng,style);
+}
+
+function oEF1(feature, layer){
+	var props = feature.properties;
+	layer.bindPopup("Nazwa przystanku tramwajowego: "+"<br>"+props.name,
+	{permanent:true});
+}
+
+function oEF2(feature, layer){
+	var props = feature.properties;
+	layer.bindPopup("Nazwa stacji metra: "+"<br>"+props.name,
+	{permanent:true});
+}
+
+function mstyle(){
+	return {color: "red",
+	weight: 1.5,
+	opacity: 1};
+}
+
+function tstyle(){
+	return {color: "blue",
+	weight: 1.5,
+	opacity: 1};
+}
+
+var metro_layer = L.geoJSON(metro_layer, {style: mstyle}).addTo(mymap); 
+
+var metro_points = L.geoJSON(metro_przystanki, {pointToLayer: PToL, onEachFeature: oEF2})/*.addTo(mymap)*/;
+
+var tramwaj_layer = L.geoJSON(tramwaj_layer, {style: tstyle}).addTo(mymap);
+
+var tramwaj_points = L.geoJSON(tram_stop, {pointToLayer: PTOL, onEachFeature: oEF1})/*.addTo(mymap)*/;
+
+
+
+L.control.scale().addTo(mymap);
+
+var baseLayers = {
+    "OpenStreetMap":osm,
+	"Satellite Map":mapa2,
+	"Street Map":mapa3
+};
+
+var overlays = {
+	"Linie tramwajowe": tramwaj_layer,
+	"Linie metra": metro_layer,
+	"Przystanki tramwajowe": tramwaj_points,
+	"Stacje metra": metro_points
+};
+
+L.control.layers(baseLayers, overlays).addTo(mymap);
+
+L.control.opacity(baseLayers, {label: 'Layers Opacity',}).addTo(mymap);
+	
+mymap.attributionControl.setPrefix(
+	'<a href="http://leafletjs.com">Leaflet</a> | Mój pierwszy geoportal'
+	);
+	
+</script>
+
+</body>
+</html>
